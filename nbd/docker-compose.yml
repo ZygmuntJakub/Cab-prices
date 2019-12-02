@@ -1,0 +1,64 @@
+version: '3'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  spring-boot-app:
+    image: springio/gs-spring-boot-docker:latest
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    networks:
+      - app-tier
+    ports:
+      - "8082:8082"
+    depends_on:
+      - cassandra
+    restart: on-failure
+
+  cassandra:
+    hostname: cassandra
+    image: 'cassandra:latest'
+    networks:
+      - app-tier
+    ports:
+      - '9042:9042'
+    healthcheck:
+      test: "nodetool statusgossip | grep -q running"
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      - "CASSANDRA_SEEDS=cassandra"
+      - "CASSANDRA_CLUSTER_NAME=cluster"
+    restart: on-failure
+
+  cassandra-node-1:
+    hostname: cassandra-node-1
+    image: 'cassandra:latest'
+    command: /bin/bash -c "echo 'cassandra-node-1 waiting for seed' && sleep 30 && /docker-entrypoint.sh cassandra -f"
+    networks:
+      - app-tier
+    environment:
+      - "CASSANDRA_SEEDS=cassandra"
+      - "CASSANDRA_CLUSTER_NAME=cluster"
+    depends_on:
+      - cassandra
+    restart: on-failure
+
+  cassandra-node-2:
+    hostname: cassandra-node-2
+    image: 'cassandra:latest'
+    command: /bin/bash -c "echo 'cassandra-node-2 waiting for seed' && sleep 30 && /docker-entrypoint.sh cassandra -f"
+    networks:
+      - app-tier
+    environment:
+      - "CASSANDRA_SEEDS=cassandra"
+      - "CASSANDRA_CLUSTER_NAME=cluster"
+    depends_on:
+      - cassandra
+    restart: on-failure
+
+
