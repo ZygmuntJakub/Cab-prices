@@ -23,8 +23,12 @@ services:
     image: 'cassandra:latest'
     networks:
       - app-tier
-    ports:
-      - '9042:9042'
+    expose:
+      - 7000
+      - 7001
+      - 7199
+      - 9042
+      - 9160
     healthcheck:
       test: "nodetool statusgossip | grep -q running"
       interval: 30s
@@ -41,6 +45,12 @@ services:
     command: /bin/bash -c "echo 'cassandra-node-1 waiting for seed' && sleep 30 && /docker-entrypoint.sh cassandra -f"
     networks:
       - app-tier
+    expose:
+      - 7000
+      - 7001
+      - 7199
+      - 9042
+      - 9160
     environment:
       - "CASSANDRA_SEEDS=cassandra"
       - "CASSANDRA_CLUSTER_NAME=cluster"
@@ -54,6 +64,12 @@ services:
     command: /bin/bash -c "echo 'cassandra-node-2 waiting for seed' && sleep 30 && /docker-entrypoint.sh cassandra -f"
     networks:
       - app-tier
+    expose:
+      - 7000
+      - 7001
+      - 7199
+      - 9042
+      - 9160
     environment:
       - "CASSANDRA_SEEDS=cassandra"
       - "CASSANDRA_CLUSTER_NAME=cluster"
