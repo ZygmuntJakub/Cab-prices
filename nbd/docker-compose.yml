@@ -23,6 +23,8 @@ services:
     image: 'cassandra:latest'
     networks:
       - app-tier
+    ports:
+      - "9042:9042"
     expose:
       - 7000
       - 7001
